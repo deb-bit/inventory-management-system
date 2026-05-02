@@ -22,7 +22,7 @@ const Sidebar = () => {
     const navItems = [
         { path: '/', label: 'Dashboard', icon: '📊' },
         { path: '/products', label: 'Products', icon: '📦' },
-        { path: '/products/add', label: 'Add Product', icon: '➕' },
+        { path: '/products/add', label: 'Add Product', icon: '➕✨' },
     ];
 
     return (
@@ -43,11 +43,11 @@ const Sidebar = () => {
                 ))}
             </nav>
             <div className="sidebar-footer" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <button onClick={toggleTheme} className="btn-logout" style={{ background: 'rgba(255, 255, 255, 0.05)' }}>
+                <button onClick={toggleTheme} className="btn-logout" style={{ background: 'rgba(0, 0, 0, 0.2)', border: 'none', borderRadius: '8px' }}>
                     <span className="icon">{isDark ? '☀️' : '🌙'}</span> 
-                    {isDark ? 'Light Mode' : 'Night Mode'}
+                    {isDark ? 'Light Theme' : 'Dark Theme'}
                 </button>
-                <button onClick={handleLogout} className="btn-logout">
+                <button onClick={handleLogout} className="btn-logout" style={{ background: 'rgba(0, 0, 0, 0.2)', border: 'none', borderRadius: '8px' }}>
                     <span className="icon">🚪</span> Logout
                 </button>
             </div>
