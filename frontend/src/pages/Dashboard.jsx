@@ -25,20 +25,16 @@ const Dashboard = () => {
     const totalValue = products.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
     const lowStockItems = products.filter(p => p.quantity < 10);
 
-    // Calculate category data for the pie chart
-    const categoryDataMap = products.reduce((acc, curr) => {
-        acc[curr.category] = (acc[curr.category] || 0) + 1;
+    // Calculate category data for the pie chart (no mock data)
+    const chartData = products.reduce((acc, curr) => {
+        const existing = acc.find(item => item.name === curr.category);
+        if (existing) {
+            existing.value += 1;
+        } else {
+            acc.push({ name: curr.category, value: 1 });
+        }
         return acc;
-    }, {});
-    
-    // If no data, provide some dummy data so the chart looks good
-    const chartData = Object.keys(categoryDataMap).length > 0 
-        ? Object.keys(categoryDataMap).map(key => ({ name: key, value: categoryDataMap[key] }))
-        : [
-            { name: 'Electronics', value: 400 },
-            { name: 'Furniture', value: 300 },
-            { name: 'Clothing', value: 300 },
-        ];
+    }, []);
 
     const COLORS = ['#8884d8', '#ff7b72', '#4bc0c0', '#ffce56', '#36a2eb'];
 
@@ -121,29 +117,39 @@ const Dashboard = () => {
 
                 <div className="dashboard-section">
                     <h2>Top Categories</h2>
-                    <div className="top-categories-box" style={{ height: '250px' }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <PieChart>
-                                <Pie
-                                    data={chartData}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={90}
-                                    paddingAngle={3}
-                                    dataKey="value"
-                                    stroke="none"
-                                >
-                                    {chartData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip 
-                                    contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} 
-                                />
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </div>
+                    {chartData.length === 0 ? (
+                        <div className="empty-state-box" style={{ height: '250px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="#dccfc1" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                                <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                            </svg>
+                            <p style={{ color: '#999', marginTop: '12px' }}>No categories yet. Add products to see the chart.</p>
+                        </div>
+                    ) : (
+                        <div className="top-categories-box" style={{ height: '250px' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={chartData}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={90}
+                                        paddingAngle={3}
+                                        dataKey="value"
+                                        stroke="none"
+                                    >
+                                        {chartData.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip 
+                                        contentStyle={{ borderRadius: '10px', border: 'none', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} 
+                                    />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
