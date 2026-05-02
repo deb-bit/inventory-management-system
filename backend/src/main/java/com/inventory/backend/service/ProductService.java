@@ -1,7 +1,9 @@
 package com.inventory.backend.service;
 
 import com.inventory.backend.model.Product;
+import com.inventory.backend.model.User;
 import com.inventory.backend.repository.ProductRepository;
+import com.inventory.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,24 +16,38 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    @Autowired
+    private UserRepository userRepository;
+
+    private User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
 
-    public List<Product> searchProducts(String name) {
-        return productRepository.findByNameContainingIgnoreCase(name);
+    public List<Product> getAllProducts(String username) {
+        User user = getUserByUsername(username);
+        return productRepository.findByUser(user);
     }
 
-    public Optional<Product> getProductById(Long id) {
-        return productRepository.findById(id);
+    public List<Product> searchProducts(String username, String name) {
+        User user = getUserByUsername(username);
+        return productRepository.findByUserAndNameContainingIgnoreCase(user, name);
     }
 
-    public Product createProduct(Product product) {
+    public Optional<Product> getProductById(String username, Long id) {
+        User user = getUserByUsername(username);
+        return productRepository.findByIdAndUser(id, user);
+    }
+
+    public Product createProduct(String username, Product product) {
+        User user = getUserByUsername(username);
+        product.setUser(user);
         return productRepository.save(product);
     }
 
-    public Product updateProduct(Long id, Product productDetails) {
-        return productRepository.findById(id).map(product -> {
+    public Product updateProduct(String username, Long id, Product productDetails) {
+        User user = getUserByUsername(username);
+        return productRepository.findByIdAndUser(id, user).map(product -> {
             product.setName(productDetails.getName());
             product.setPrice(productDetails.getPrice());
             product.setQuantity(productDetails.getQuantity());
@@ -40,7 +56,10 @@ public class ProductService {
         }).orElseThrow(() -> new RuntimeException("Product not found with id " + id));
     }
 
-    public void deleteProduct(Long id) {
-        productRepository.deleteById(id);
+    public void deleteProduct(String username, Long id) {
+        User user = getUserByUsername(username);
+        Product product = productRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Product not found with id " + id));
+        productRepository.delete(product);
     }
 }

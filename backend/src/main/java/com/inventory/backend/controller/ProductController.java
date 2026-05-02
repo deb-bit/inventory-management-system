@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
-@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -17,31 +17,31 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public List<Product> getAllProducts(Principal principal) {
+        return productService.getAllProducts(principal.getName());
     }
     
     @GetMapping("/search")
-    public List<Product> searchProducts(@RequestParam String name) {
-        return productService.searchProducts(name);
+    public List<Product> searchProducts(Principal principal, @RequestParam String name) {
+        return productService.searchProducts(principal.getName(), name);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
-        return productService.getProductById(id)
+    public ResponseEntity<Product> getProductById(Principal principal, @PathVariable Long id) {
+        return productService.getProductById(principal.getName(), id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public Product createProduct(@RequestBody Product product) {
-        return productService.createProduct(product);
+    public Product createProduct(Principal principal, @RequestBody Product product) {
+        return productService.createProduct(principal.getName(), product);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product productDetails) {
+    public ResponseEntity<Product> updateProduct(Principal principal, @PathVariable Long id, @RequestBody Product productDetails) {
         try {
-            Product updatedProduct = productService.updateProduct(id, productDetails);
+            Product updatedProduct = productService.updateProduct(principal.getName(), id, productDetails);
             return ResponseEntity.ok(updatedProduct);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
@@ -49,8 +49,12 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
-        productService.deleteProduct(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> deleteProduct(Principal principal, @PathVariable Long id) {
+        try {
+            productService.deleteProduct(principal.getName(), id);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
