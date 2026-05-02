@@ -74,7 +74,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:3000")); // Vite default port
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "https://inventory-management-system-seven-ivory.vercel.app",
+            "https://inventory-management-system-81jqjz8id-deb-bits-projects.vercel.app",
+            "https://deb-bits-projects.vercel.app"
+        ));
+        configuration.setAllowedOriginPatterns(Arrays.asList("https://*.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
